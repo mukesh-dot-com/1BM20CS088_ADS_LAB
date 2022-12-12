@@ -29,7 +29,7 @@ class Node
 // create class ConstructAVLTree for constructing AVL Tree  
 class ConstructAVLTree  
 {  
-    private Node rootNode;       
+    Node rootNode;       
   
     //Constructor to set null value to the rootNode  
     public ConstructAVLTree()  
@@ -139,8 +139,7 @@ class ConstructAVLTree
             inorderTraversal(head.rightChild);  
         }  
     }  
-  
-    // create preorderTraversal() method for traversing AVL Tree in pre-order form  
+
     public void preorderTraversal()  
     {  
         preorderTraversal(rootNode);  
@@ -153,50 +152,101 @@ class ConstructAVLTree
             preorderTraversal(head.leftChild);               
             preorderTraversal(head.rightChild);  
         }  
-    }       
+    }
+    Node minValueNode(Node node)
+	{
+	    Node temp;
+        for(temp=node;temp.leftChild!=null;temp=temp.leftChild);
+
+		return temp;
+	}
+    int getBalance(Node N)
+	{
+		if (N == null)
+			return 0;
+		return getHeight(N.leftChild) - getHeight(N.rightChild);
+	}
+    
+    Node deleteNode(Node root, int key)
+	{
+		if (root == null)
+			return root;
+		if (key < root.element)
+			root.leftChild = deleteNode(root.leftChild, key);
+		else if (key > root.element)
+			root.rightChild = deleteNode(root.rightChild, key);
+		else
+		{
+			if ((root.leftChild == null) || (root.rightChild == null))
+			{
+				Node temp = null;
+				if (temp == root.leftChild)
+					temp = root.rightChild;
+				else
+					temp = root.leftChild;
+
+				if (temp == null)
+				{
+					temp = root;
+					root = null;
+				}
+				else 
+					root = temp;
+			}
+			else
+			{
+				Node temp = minValueNode(root.rightChild);
+				root.element = temp.element;
+				root.rightChild = deleteNode(root.rightChild, temp.element);
+			}
+		}
+		if (root == null)
+			return root;
+		root.h = Math.max(getHeight(root.leftChild), getHeight(root.rightChild)) + 1;
+    	        int balance = getBalance(root);
+		if (balance > 1 && getBalance(root.leftChild) >= 0)
+			return rotateWithRightChild(root);
+		if (balance > 1 && getBalance(root.leftChild) < 0)
+		{
+			root.leftChild = rotateWithLeftChild(root.leftChild);
+			return rotateWithRightChild(root);
+		}
+		if (balance < -1 && getBalance(root.rightChild) <= 0)
+			return rotateWithLeftChild(root);
+		if (balance < -1 && getBalance(root.rightChild) > 0)
+		{
+			root.rightChild = rotateWithRightChild(root.rightChild);
+			return rotateWithLeftChild(root);
+		}
+		return root;
+	}
 }  
-  
-// create AVLTree class to construct AVL Tree  
+
 public class AVLTree
 {  
-    //main() method starts  
     public static void main(String[] args)  
     {              
-        //creating Scanner class object to get input from user  
         Scanner sc = new Scanner(System.in);  
-  
-        // create object of ConstructAVLTree class object for costructing AVL Tree  
         ConstructAVLTree obj = new ConstructAVLTree();   
-   //initialize a character type variable to choice   
-          
-        // perform operation of AVL Tree using switch  
-        while(true)     
+        int i = 0;
+        while(i<5)     
         {   
-            System.out.println("1. Insert a node");  
-            System.out.println("2. Display AVL Tree in Inorder");  
-            System.out.println("3. Display AVL Tree in Preorder");
-            System.out.println("4. Exit");  
-            
-            //get choice from user  
-            int ch = sc.nextInt();              
-            switch (ch)  
-            {  
-                case 1 :   
-                    System.out.println("Please enter an element to insert in AVL Tree");  
-                    obj.insertElement(sc.nextInt());                       
-                    break;                                                                     
-                case 3 :   
-                    System.out.println("\nDisplay AVL Tree in Pre order");  
-                    obj.preorderTraversal();  
-                    break;  
-                case 2 :   
-                    System.out.println("\nDisplay AVL Tree in In order");  
-                    obj.inorderTraversal();  
-                    break;  
-                case 4:   
-                    System.exit(0);
-                    break;      
-            }                   
-        }       
+            obj.insertElement(sc.nextInt());    
+            i++;
+        }                   
+        System.out.println("\nDisplay AVL Tree in Pre order");  
+        obj.preorderTraversal();  
+
+        System.out.println("\nDisplay AVL Tree in In order");  
+        obj.inorderTraversal();  
+
+        System.out.println("\nEnter the node to be deleted");
+        obj.deleteNode(obj.rootNode, sc.nextInt());
+
+        System.out.println("\nDisplay AVL Tree in In order");  
+        obj.inorderTraversal(); 
+        obj.preorderTraversal(); 
+ 
+                    System.exit(0);   
+            }                       
     }  
-}  
